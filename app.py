@@ -5,32 +5,25 @@ from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
-class game:
+class Game:
+    structure = ["_" for _ in range(9)]
+    current_player = 'X'  # Track the current player
 
-    structure = ["_" for i in range(9)]
-    current_mode = None
-
+    @staticmethod
     def layout():
-        return [game.structure[i:i+3] for i in range(0, 9, 3)]
+        return [Game.structure[i:i+3] for i in range(0, 9, 3)]
 
-    def user1_input(position):
+    @staticmethod
+    def user_input(position, player):
         if position.isdigit() and int(position) in range(1, 10):
-            if game.structure[int(position) - 1] == "_":
-                game.structure[int(position) - 1] = "X"
+            if Game.structure[int(position) - 1] == "_":
+                Game.structure[int(position) - 1] = player
                 return True
             else:
                 return False
         return False
 
-    def user2_input(position):
-        if position.isdigit() and int(position) in range(1, 10):
-            if game.structure[int(position) - 1] == "_":
-                game.structure[int(position) - 1] = "O"
-                return True
-            else:
-                return False
-        return False
-
+    @staticmethod
     def check(player):
         combinations = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -38,21 +31,25 @@ class game:
             [0, 4, 8], [2, 4, 6]
         ]
         for possibility in combinations:
-            if all(game.structure[i] == player for i in possibility):
+            if all(Game.structure[i] == player for i in possibility):
                 return True
         return False
 
+    @staticmethod
     def draw():
-        return "_" not in game.structure
+        return "_" not in Game.structure
 
+    @staticmethod
     def refresh():
-        game.structure = ["_" for i in range(9)]
+        Game.structure = ["_" for _ in range(9)]
+        Game.current_player = 'X'  # Reset the current player to 'X'
+
 
 @app.route('/')
 def home():
     return render_template('home.html')
 
-@app.route('/select_mode', methods = ['POST'])
+@app.route('/select_mode', methods=['POST'])
 def user_mode():
     user_mode = request.form.get('mode')
     if user_mode == '1':
@@ -64,38 +61,34 @@ def user_mode():
 
 @app.route('/double_player')
 def double_player():
-    return render_template('double_player.html', game=game.layout(), message='')
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, message='')
 
 @app.route('/move', methods=['POST'])
 def move():
     player = request.form['player']
     position = request.form['position']
-    
-    if player == 'X':
-        valid_move = game.user1_input(position)
-    elif player == 'O':
-        valid_move = game.user2_input(position)
-    else:
-        valid_move = False
-    
+
+    valid_move = Game.user_input(position, player)
+
     if valid_move:
-        if game.check(player):
+        if Game.check(player):
             message = f'Player {player} won!'
-            game.refresh()
-        elif game.draw():
+            Game.refresh()
+        elif Game.draw():
             message = 'Match Draw!'
-            game.refresh()
+            Game.refresh()
         else:
             message = ''
+            Game.current_player = 'O' if player == 'X' else 'X'
     else:
         message = 'Invalid move'
-    
-    return render_template('index.html', game=game.layout(), message=message)
+
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, message=message)
 
 @app.route('/refresh')
 def refresh():
-    game.refresh()
-    return redirect(url_for('index'))
+    Game.refresh()
+    return redirect(url_for('double_player'))
 
 if __name__ == '__main__':
     app.run(debug=True)

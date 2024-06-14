@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tic Tac Toe</title>
+    <title>Double Player</title>
     <style>
         table {
             margin: 20px auto;
@@ -32,16 +32,19 @@
         {% endfor %}
     </table>
     <div style="text-align: center;">
-        <form action="{{ url_for('move') }}" method="post">
-            <input type="hidden" name="player" value="X">
-            <input type="text" name="position" placeholder="Player X move (1-9)">
-            <button type="submit">Move</button>
-        </form>
-        <form action="{{ url_for('move') }}" method="post">
-            <input type="hidden" name="player" value="O">
-            <input type="text" name="position" placeholder="Player O move (1-9)">
-            <button type="submit">Move</button>
-        </form>
+        {% if current_player == 'X' %}
+            <form action="{{ url_for('move') }}" method="post">
+                <input type="hidden" name="player" value="X">
+                <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
+                <button type="submit">Move</button>
+            </form>
+        {% elif current_player == 'O' %}
+            <form action="{{ url_for('move') }}" method="post">
+                <input type="hidden" name="player" value="O">
+                <input type="text" name="position" placeholder="Player O move (1-9)" autofocus>
+                <button type="submit">Move</button>
+            </form>
+        {% endif %}
     </div>
     <div style="text-align: center; margin-top: 20px;">
         <form action="{{ url_for('refresh') }}" method="get">

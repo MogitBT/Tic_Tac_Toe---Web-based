@@ -53,7 +53,7 @@ def home():
 def user_mode():
     user_mode = request.form.get('mode')
     if user_mode == '1':
-        return render_template('single_player.html')
+        return redirect(url_for('single_player'))
     elif user_mode == '2':
         return redirect(url_for('double_player'))
     else:
@@ -61,10 +61,14 @@ def user_mode():
 
 @app.route('/double_player')
 def double_player():
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, message='')
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player)
 
-@app.route('/move', methods=['POST'])
-def move():
+@app.route('/single_player')
+def single_player():
+    return render_template('single_player.html', game = Game.layout(), current_player = Game.current_player)
+
+@app.route('/doubleplayer_move', methods=['POST'])
+def doubleplayer_move():
     player = request.form['player']
     position = request.form['position']
 
@@ -85,10 +89,42 @@ def move():
 
     return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, message=message)
 
-@app.route('/refresh')
+@app.route('/singleplayer_move', methods=['POST'])
+def singleplayer_move():
+    player = request.form['player']
+    position = request.form['position']
+
+    valid_move = Game.user_input(position, player)
+
+    if valid_move:
+        if Game.check(player):
+            message = f'Player {player} won!'
+            Game.refresh()
+        elif Game.draw():
+            message = 'Match Draw!'
+            Game.refresh()
+        else:
+            message = ''
+            Game.current_player = 'O' if player == 'X' else 'X'
+    else:
+        message = 'Invalid move'
+
+    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, message=message)
+
+@app.route('/refresh', methods =['POST', 'GET'])
 def refresh():
-    Game.refresh()
-    return redirect(url_for('double_player'))
+    if request.method == 'POST':
+        source = request.form.get('source')
+    else:
+        source = request.args.get('source')
+
+    if source == 'single_player':
+        Game.refresh()
+        return redirect(url_for('single_player'))
+    else:
+        Game.refresh()
+        return redirect(url_for('double_player'))
+        
 
 if __name__ == '__main__':
     app.run(debug=True)

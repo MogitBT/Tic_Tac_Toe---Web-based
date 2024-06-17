@@ -33,13 +33,13 @@
     </table>
     <div style="text-align: center;">
         {% if current_player == 'X' %}
-            <form action="{{ url_for('move') }}" method="post">
+            <form action="{{ url_for('doubleplayer_move') }}" method="post">
                 <input type="hidden" name="player" value="X">
                 <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
                 <button type="submit">Move</button>
             </form>
         {% elif current_player == 'O' %}
-            <form action="{{ url_for('move') }}" method="post">
+            <form action="{{ url_for('doubleplayer_move') }}" method="post">
                 <input type="hidden" name="player" value="O">
                 <input type="text" name="position" placeholder="Player O move (1-9)" autofocus>
                 <button type="submit">Move</button>
@@ -47,9 +47,10 @@
         {% endif %}
     </div>
     <div style="text-align: center; margin-top: 20px;">
-        <form action="{{ url_for('refresh') }}" method="get">
-            <button type="submit">Refresh</button>
-        </form>
+        <form action="{{ url_for('refresh') }}" method="post">
+        <input type="hidden" name="source" value="double_player">
+        <button type="submit">Refresh</button>
+    </form>
     </div>
     <div style="text-align: center; color: red;">
         {{ message }}

@@ -32,24 +32,21 @@
         {% endfor %}
     </table>
     <div style="text-align: center;">
-        {% if current_player == 'X' %}
-            <form action="{{ url_for('singleplayer_move') }}" method="post">
-                <input type="hidden" name="player" value="X">
-                <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
-                <button type="submit">Move</button>
-            </form>
-        {% elif current_player == 'O' %}
-            <form action="{{ url_for('singleplayer_move') }}" method="post">
-                <input type="hidden" name="player" value="O">
-                <input type="text" name="position" placeholder="Player O move (1-9)" autofocus>
-                <button type="submit">Move</button>
-            </form>
-        {% endif %}
+        <form action="{{ url_for('singleplayer_move') }}" method="post">
+            <input type="hidden" name="player" value="X">
+            <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
+            <button type="submit">Move</button>
+        </form>
     </div>
     <div style="text-align: center; margin-top: 20px;">
         <form action="{{ url_for('refresh') }}" method="post">
             <input type="hidden" name="source" value="single_player">
             <button type="submit">Refresh</button>
+        </form>
+    </div>
+    <div style='text-align:center; margin-top:20px;'>
+        <form action="{{url_for('home')}}" method="post">
+            <button type="submit">Exit</button>
         </form>
     </div>
     <div style="text-align: center; color: red;">

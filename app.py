@@ -58,7 +58,7 @@ class Game:
             return 'Invalid move'
 
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET','POST'])
 def home():
     return render_template('home.html')
 

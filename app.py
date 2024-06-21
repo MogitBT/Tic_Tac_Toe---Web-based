@@ -69,8 +69,8 @@ def user_mode():
         return redirect(url_for('single_player'))
     elif user_mode == '2':
         return redirect(url_for('double_player'))
-    else:
-        return "Invalid mode selected"
+    elif user_mode == '3':
+        return redirect(url_for('tutorial'))
 
 @app.route('/double_player')
 def double_player():
@@ -79,6 +79,10 @@ def double_player():
 @app.route('/single_player')
 def single_player():
     return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player)
+
+@app.route('/tutorial')
+def tutorial():
+    return render_template('tutorial.html')
 
 @app.route('/doubleplayer_move', methods=['POST'])
 def doubleplayer_move():

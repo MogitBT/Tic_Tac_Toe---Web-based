@@ -1,11 +1,56 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Tutorail</title>
-    </head>
-    <body>
-        <p>HI</p>
-    </body>
-    </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tutorial</title>
+    <style>
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        td {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            border: 1px solid #000;
+            font-size: 24px;
+        }
+        form {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Tic Tac Toe Tutorial</h1>
+    <table>
+        {% for row in game %}
+            <tr>
+                {% for cell in row %}
+                    <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    <div style="text-align: center;">
+        <form action="{{ url_for('tutorial_move') }}" method="post">
+            <input type="hidden" name="player" value="X">
+            <input type="text" name="position" placeholder="Enter position (1-9)" autofocus>
+            <button type="submit">Move</button>
+        </form>
+    </div>
+    <div style="text-align: center; margin-top: 20px;">
+        <form action="{{ url_for('refresh') }}" method="post">
+            <input type="hidden" name="source" value="tutorial">
+            <button type="submit">Refresh</button>
+        </form>
+    </div>
+    <div style='text-align:center; margin-top:20px;'>
+        <form action="{{url_for('home')}}" method="post">
+            <button type="submit">Exit</button>
+        </form>
+    </div>
+    <div style="text-align: center; color: red;">
+        {{ message }}
+    </div>
+</body>
+</html>

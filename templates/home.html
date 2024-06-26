@@ -11,6 +11,11 @@
         ul {
             text-align: center;
             font-size: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -19,9 +24,15 @@
     <h2>Choose the Mode of Game</h2>
     <form action="/select_mode" method="post">
         <ul>
-            <input type="radio" name="mode" value="1"> Single Player <br>
-            <input type="radio" name="mode" value="2"> Double Player <br>
-            <input type="radio" name="mode" value="3"> Tutorial
+            <li>
+                <input type="radio" name="mode" value="1"> Single Player
+            </li>
+            <li>
+                <input type="radio" name="mode" value="2"> Double Player
+            </li>
+            <li>
+                <input type="radio" name="mode" value="3"> Tutorial
+            </li>
         </ul>
         <div style="text-align: center;">
             <input type="submit" value="Select Mode">

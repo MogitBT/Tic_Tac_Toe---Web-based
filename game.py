@@ -104,6 +104,14 @@ class Game:
 
         return message
 
+    def tutorial_logic():
+        if Game.tutorial_step <= len(Game.combination):
+            next_hint_position = Game.combination[Game.tutorial_count][Game.hint_index]
+            if Game.structure[next_hint_position] == "_":
+                Game.structure[next_hint_position] = "√"
+        else:
+            Game.refresh()
+
     def tutorial_update(position):
         if position.isdigit() and int(position) in range(1, 10):
             pos_index = int(position) - 1
@@ -118,7 +126,7 @@ class Game:
                         if Game.tutorial_step < len(Game.combination):
                             Game.refresh()
                             Game.tutorial_count += 1
-                            tutorial_logic()
+                            Game.tutorial_logic()
                             return "Well done! Proceeded to the next level."
                         else:
                             return "Tutorial complete! You've learned all the steps."
@@ -127,7 +135,7 @@ class Game:
                         if Game.structure[bot_pos] == '_':
                             Game.structure[bot_pos] = "O"
                             break
-                    tutorial_logic()  
+                    Game.tutorial_logic()  
                     return "Correct move! Now it's your turn again."
                 else:
                     return "Incorrect position. Try again."
@@ -135,11 +143,3 @@ class Game:
                 return "Tutorial complete! You've learned all the steps."
         else:
             return "Invalid input. Please enter a number between 1 and 9."
-
-    def tutorial_logic():
-        if Game.tutorial_step <= len(Game.combination):
-            next_hint_position = Game.combination[Game.tutorial_count][Game.hint_index]
-            if Game.structure[next_hint_position] == "_":
-                Game.structure[next_hint_position] = "√"
-        else:
-            Game.refresh()

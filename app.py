@@ -5,16 +5,16 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    return render_template('home.html')
+    return render_template('home.html',game=Game.layout())
 
 @app.route('/select_mode', methods=['POST'])
 def user_mode():
     user_mode = request.form.get('mode')
-    if user_mode == '1':
+    if user_mode == 'Single Player':
         return redirect(url_for('single_player'))
-    elif user_mode == '2':
+    elif user_mode == 'Double Player':
         return redirect(url_for('double_player'))
-    elif user_mode == '3':
+    elif user_mode == 'Tutorial':
         return redirect(url_for('tutorial'))
 
 @app.route('/double_player')

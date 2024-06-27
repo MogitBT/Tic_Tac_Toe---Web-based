@@ -5,38 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <style>
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        td {
+            width: 70px;
+            height: 70px;
+            text-align: center;
+            border: 2px solid #000;
+            font-size: 28px;
+        }
+        form {
+            display: inline;
+        }
         h1, h2 {
             text-align: center;
         }
         ul {
             text-align: center;
-            font-size: 20px;
+            font-size: 25px;
             list-style-type: none;
             padding: 0;
         }
         li {
-            margin: 10px 0;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <h1>Welcome to the Tic-Tac-Toe game</h1>
     <h2>Choose the Mode of Game</h2>
+    <table>
+        {% for row in game %}
+            <tr>
+                {% for cell in row %}
+                    <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
     <form action="/select_mode" method="post">
         <ul>
-            <li>
-                <input type="radio" name="mode" value="1"> Single Player
-            </li>
-            <li>
-                <input type="radio" name="mode" value="2"> Double Player
-            </li>
-            <li>
-                <input type="radio" name="mode" value="3"> Tutorial
-            </li>
+            <input type="submit" name="mode" value="Single Player">
+            <input type="submit" name="mode" value="Double Player">
+            <input type="submit" name="mode" value="Tutorial">
         </ul>
-        <div style="text-align: center;">
-            <input type="submit" value="Select Mode">
-        </div>
     </form>
 </body>
 </html>

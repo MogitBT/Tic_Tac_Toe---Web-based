@@ -16,14 +16,24 @@ def user_mode():
         return redirect(url_for('single_player'))
     elif user_mode == 'Double Player':
         session['first_move_made'] = False
+        session.pop('player1', None)
+        session.pop('player2', None)
         return redirect(url_for('double_player'))
     elif user_mode == 'Tutorial':
         return redirect(url_for('tutorial'))
 
-@app.route('/double_player')
+@app.route('/double_player', methods=['GET', 'POST'])
 def double_player():
+    if request.method == 'POST':
+        session['player1'] = request.form['player1']
+        session['player2'] = request.form['player2']
+        session['first_move_made'] = False
+
     first_move_made = session.get('first_move_made', False)
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made)
+    player1 = session.get('player1')
+    player2 = session.get('player2')
+
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2)
 
 @app.route('/single_player')
 def single_player():
@@ -45,7 +55,10 @@ def doubleplayer_move():
     if not session.get('first_move_made', False):
         session['first_move_made'] = True
 
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], message=message)
+    player1 = session.get('player1', 'Player 1')
+    player2 = session.get('player2', 'Player 2')
+
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=message)
 
 @app.route('/singleplayer_move', methods=['POST'])
 def singleplayer_move():
@@ -54,20 +67,20 @@ def singleplayer_move():
 
     message = Game.update(position, player)
 
-    if not session.get('first_move_made',False):
+    if not session.get('first_move_made', False):
         session['first_move_made'] = True
 
     if Game.current_player == 'O' and not message:
         message = Game.bot_move_logic()
 
-    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player,first_move_made=session['first_move_made'], message=message)
+    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], message=message)
 
 @app.route('/tutorial_move', methods=['POST'])
 def tutorial_move():
     player = request.form['player']
     position = request.form['position']
 
-    if not session.get('first_move_made',False):
+    if not session.get('first_move_made', False):
         session['first_move_made'] = True
 
     message = Game.tutorial_update(position)

@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1, h2 {
+            color: #333;
+        }
         table {
             margin: 20px auto;
             border-collapse: collapse;
@@ -16,41 +34,47 @@
             border: 2px solid #000;
             font-size: 28px;
         }
-        form {
-            display: inline;
-        }
-        h1, h2 {
-            text-align: center;
-        }
         ul {
-            text-align: center;
-            font-size: 25px;
-            list-style-type: none;
             padding: 0;
+            list-style-type: none;
         }
         li {
             margin: 20px 0;
         }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
-    <h1>Welcome to the Tic-Tac-Toe game</h1>
-    <h2>Choose the Mode of Game</h2>
-    <table>
-        {% for row in game %}
-            <tr>
-                {% for cell in row %}
-                    <td>{{ cell }}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    </table>
-    <form action="/select_mode" method="post">
-        <ul>
-            <input type="submit" name="mode" value="Single Player">
-            <input type="submit" name="mode" value="Double Player">
-            <input type="submit" name="mode" value="Tutorial">
-        </ul>
-    </form>
+    <div class="container">
+        <h1>Welcome to the Tic-Tac-Toe Game</h1>
+        <h2>Choose the Mode of Game</h2>
+        <table>
+            {% for row in game %}
+                <tr>
+                    {% for cell in row %}
+                        <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        <form action="/select_mode" method="post">
+            <ul>
+                <li><button type="submit" name="mode" value="Single Player">Single Player</button></li>
+                <li><button type="submit" name="mode" value="Double Player">Double Player</button></li>
+                <li><button type="submit" name="mode" value="Tutorial">Tutorial</button></li>
+            </ul>
+        </form>
+    </div>
 </body>
 </html>

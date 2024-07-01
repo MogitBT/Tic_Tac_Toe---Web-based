@@ -33,24 +33,25 @@
         {% endfor %}
     </table>
     <div style="text-align: center;">
-        <form action="{{ url_for('singleplayer_move') }}" method="post">
-            <input type="hidden" name="player" value="X">
-            <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
-            <button type="submit">Move</button>
-        </form>
-    </div>
-    <form action="/select_mode" method="post">
-        <ul>
-            <input type="submit" name="mode" value="Single Player">
-            <input type="submit" name="mode" value="Double Player">
-            <input type="submit" name="mode" value="Tutorial">
-        </ul>
-    </form>
-    <div style="text-align: center; margin-top: 20px;">
-        <form action="{{ url_for('refresh') }}" method="post">
-            <input type="hidden" name="source" value="single_player">
-            <button type="submit">Refresh</button>
-        </form>
+        {% if first_move_made %}
+            <form action="{{ url_for('singleplayer_move') }}" method="post">
+                <input type="hidden" name="player" value="X">
+                <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
+                <button type="submit">Move</button>
+            </form>
+            <div style="text-align: center; margin-top: 20px;">
+                <form action="{{ url_for('refresh') }}" method="post">
+                    <input type="hidden" name="source" value="single_player">
+                    <button type="submit">Refresh</button>
+                </form>
+            </div>
+        {% else %}
+            <form action="{{ url_for('singleplayer_move') }}" method="post">
+                <input type="hidden" name="player" value="X">
+                <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
+                <button type="submit">Move</button>
+            </form>
+        {% endif %}
     </div>
     <div style='text-align:center; margin-top:20px;'>
         <form action="{{url_for('home')}}" method="post">

@@ -67,8 +67,11 @@ def tutorial_move():
     player = request.form['player']
     position = request.form['position']
 
+    if not session.get('first_move_made',False):
+        session['first_move_made'] = True
+
     message = Game.tutorial_update(position)
-    return render_template('tutorial.html', game=Game.layout(), current_player=Game.current_player, message=message)
+    return render_template('tutorial.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], message=message)
 
 @app.route('/refresh', methods=['POST'])
 def refresh():

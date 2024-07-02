@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import uuid
 from game import Game
 
 app = Flask(__name__)
@@ -13,9 +14,10 @@ tables_created = False
 
 class UserInput(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.String(36), nullable=False)
     player = db.Column(db.String(10), nullable=False)
     position = db.Column(db.Integer, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.now)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     game_mode = db.Column(db.String(20), nullable=False)
     player_name = db.Column(db.String(50), nullable=False)
 
@@ -28,6 +30,9 @@ def create_tables():
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    if 'game_id' not in session:
+        session['game_id'] = str(uuid.uuid4())  # Generate a new game ID if not already set
+
     Game.structure = ["_" for _ in range(9)]
     return render_template('home.html', game=Game.layout())
 
@@ -52,7 +57,7 @@ def double_player():
         
         if not player1 or not player2 or player1 == player2:
             error_message = "Invalid input: Please enter distinct names for both players."
-            return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, message=error_message)
+            return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, error_message=error_message)
         
         session['player1'] = player1
         session['player2'] = player2
@@ -62,14 +67,20 @@ def double_player():
     player1 = session.get('player1')
     player2 = session.get('player2')
 
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2,message = error_message)
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2)
 
 @app.route('/single_player')
 def single_player():
+    if 'game_id' not in session:
+        session['game_id'] = str(uuid.uuid4())  # Generate a new game ID if not already set
+
     return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player)
 
 @app.route('/tutorial')
 def tutorial():
+    if 'game_id' not in session:
+        session['game_id'] = str(uuid.uuid4())  # Generate a new game ID if not already set
+
     Game.refresh()
     Game.tutorial_logic()
     return render_template('tutorial.html', game=Game.layout(), current_player=Game.current_player)
@@ -78,18 +89,22 @@ def tutorial():
 def doubleplayer_move():
     player = request.form['player']
     position = request.form['position']
-    player_name = session.get('player1') if player == 'X' else session.get('player2')
+    game_id = session['game_id']
 
-    if not position.isdigit() or int(position) not in range(1, 10) or Game.structure[int(position) - 1] != "_":
+    if not position.isdigit() or int(position) not in range(9) or Game.structure[int(position) - 1] != "_":
         error_message = "Invalid move: Please select a valid position."
         player1 = session.get('player1', 'Player 1')
         player2 = session.get('player2', 'Player 2')
-        return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=error_message)
+        return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), error_message=error_message, player1=player1, player2=player2)
 
     message = Game.update(position, player)
-
+    
+    if not session.get('first_move_made', False):
+        session['first_move_made'] = True
+        
     # Track user input
-    user_input = UserInput(player=player, position=int(position), game_mode='Double Player', player_name=player_name)
+    player_name = session.get('player1') if player == 'X' else session.get('player2')
+    user_input = UserInput(game_id=game_id, player=player, position=int(position), game_mode='Double Player', player_name=player_name)
     db.session.add(user_input)
     db.session.commit()
     
@@ -105,16 +120,17 @@ def doubleplayer_move():
 def singleplayer_move():
     player = request.form['player']
     position = request.form['position']
+    game_id = session['game_id']
     player_name = "Player X" if player == 'X' else "Bot"
 
-    if not position.isdigit() or int(position) not in range(9) or Game.structure[int(position) - 1] != "_":
+    if not position.isdigit() or int(position) not in range(10) or Game.structure[int(position) - 1] != "_":
         error_message = "Invalid move: Please select a valid position."
         return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), error_message=error_message)
 
     message = Game.update(position, player)
 
     # Track user input for player
-    user_input = UserInput(player=player, position=int(position) - 1, game_mode='Single Player', player_name=player_name)
+    user_input = UserInput(game_id=game_id, player=player, position=int(position) - 1, game_mode='Single Player', player_name=player_name)
     db.session.add(user_input)
     db.session.commit()
 
@@ -125,7 +141,7 @@ def singleplayer_move():
         bot_position, bot_message = Game.bot_move_logic()
 
         # Track user input for bot
-        bot_input = UserInput(player='O', position=bot_position, game_mode='Single Player', player_name="Bot")
+        bot_input = UserInput(game_id=game_id, player='O', position=bot_position, game_mode='Single Player', player_name="Bot")
         db.session.add(bot_input)
         db.session.commit()
 
@@ -137,12 +153,20 @@ def singleplayer_move():
 def tutorial_move():
     player = request.form['player']
     position = request.form['position']
+    game_id = session['game_id']
     message = Game.tutorial_update(position)
+
+    # Track user input for tutorial
+    user_input = UserInput(game_id=game_id, player=player, position=int(position), game_mode='Tutorial', player_name="Tutorial Player")
+    db.session.add(user_input)
+    db.session.commit()
+
     return render_template('tutorial.html', game=Game.layout(), current_player=Game.current_player, message=message)
 
 @app.route('/refresh', methods=['POST'])
 def refresh():
     source = request.form.get('source')
+    session.pop('game_id', None)  # Remove game_id from session to generate a new one
     Game.refresh()
     session['first_move_made'] = False
     if source == 'single_player':

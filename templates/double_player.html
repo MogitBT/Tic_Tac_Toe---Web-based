@@ -42,13 +42,16 @@
             font-size: 20px;
         }
         .form-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             margin: 15px 0;
         }
         input[type="text"] {
             padding: 10px;
             font-size: 18px;
-            width: calc(100% - 22px);
-            margin-bottom: 10px;
+            width: 150px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
@@ -67,6 +70,10 @@
         .message {
             text-align: center;
             color: red;
+            margin-top: 20px;
+        }
+        .exit-form {
+            text-align: center;
             margin-top: 20px;
         }
     </style>
@@ -91,23 +98,48 @@
                             <input type="hidden" name="player" value="X">
                             <div class="form-group">
                                 <input type="text" name="position" placeholder="{{ player1 }}'s move (1-9)" autofocus>
+                                <button type="submit">Move</button>
                             </div>
-                            <button type="submit">Move</button>
                         </form>
                     {% elif current_player == 'O' %}
                         <form action="{{ url_for('doubleplayer_move') }}" method="post">
                             <input type="hidden" name="player" value="O">
                             <div class="form-group">
                                 <input type="text" name="position" placeholder="{{ player2 }}'s move (1-9)" autofocus>
+                                <button type="submit">Move</button>
                             </div>
-                            <button type="submit">Move</button>
                         </form>
                     {% endif %}
                 {% else %}
-                    <form action="{{ url_for('refresh') }}" method="post" style="margin-top: 20px;">
-                        <input type="hidden" name="source" value="double_player">
-                        <button type="submit">Refresh</button>
-                    </form>
+                    {% if current_player == 'X' %}
+                        <form action="{{ url_for('doubleplayer_move') }}" method="post">
+                            <input type="hidden" name="player" value="X">
+                            <div class="form-group">
+                                <input type="text" name="position" placeholder="{{ player1 }}'s move (1-9)" autofocus>
+                                <button type="submit">Move</button>
+                            </div>
+                        </form>
+                        <div>
+                            <form action="{{ url_for('refresh') }}" method="post" style="margin-top: 20px;">
+                                <input type="hidden" name="source" value="double_player">
+                                <button type="submit">Refresh</button>
+                            </form>
+                        </div>
+                    {% elif current_player == 'O' %}
+                        <form action="{{ url_for('doubleplayer_move') }}" method="post">
+                            <input type="hidden" name="player" value="O">
+                            <div class="form-group">
+                                <input type="text" name="position" placeholder="{{ player2 }}'s move (1-9)" autofocus>
+                                <button type="submit">Move</button>
+                            </div>
+                        </form>
+                        <div>
+                            <form action="{{ url_for('refresh') }}" method="post" style="margin-top: 20px;">
+                                <input type="hidden" name="source" value="double_player">
+                                <button type="submit">Refresh</button>
+                            </form>
+                        </div>
+                    {% endif %}
                 {% endif %}
             </div>
         {% else %}
@@ -123,7 +155,7 @@
                 </form>
             </div>
         {% endif %}
-        <div style="text-align: center; margin-top: 20px;">
+        <div class="exit-form">
             <form action="{{ url_for('home') }}" method="post">
                 <button type="submit">Exit</button>
             </form>

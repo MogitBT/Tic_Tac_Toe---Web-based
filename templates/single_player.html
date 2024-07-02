@@ -2,8 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Single Player</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
         table {
             margin: 20px auto;
             border-collapse: collapse;
@@ -16,50 +35,71 @@
             font-size: 28px;
         }
         form {
-            display: inline;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .message {
             text-align: center;
+            color: red;
+        }
+        .exit-form {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Tic Tac Toe</h1>
-    <table>
-        {% for row in game %}
-            <tr>
-                {% for cell in row %}
-                    <td>{{ cell }}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    </table>
-    <div style="text-align: center;">
-        {% if first_move_made %}
-            <form action="{{ url_for('singleplayer_move') }}" method="post">
-                <input type="hidden" name="player" value="X">
-                <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
-                <button type="submit">Move</button>
-            </form>
-            <div style="text-align: center; margin-top: 20px;">
-                <form action="{{ url_for('refresh') }}" method="post">
-                    <input type="hidden" name="source" value="single_player">
-                    <button type="submit">Refresh</button>
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <table>
+            {% for row in game %}
+                <tr>
+                    {% for cell in row %}
+                        <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        <div>
+            {% if first_move_made %}
+                <form action="{{ url_for('singleplayer_move') }}" method="post">
+                    <input type="hidden" name="player" value="X">
+                    <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
+                    <button type="submit">Move</button>
                 </form>
-            </div>
-        {% else %}
-            <form action="{{ url_for('singleplayer_move') }}" method="post">
-                <input type="hidden" name="player" value="X">
-                <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
-                <button type="submit">Move</button>
+                <div style="margin-top: 20px;">
+                    <form action="{{ url_for('refresh') }}" method="post">
+                        <input type="hidden" name="source" value="single_player">
+                        <button type="submit">Refresh</button>
+                    </form>
+                </div>
+            {% else %}
+                <form action="{{ url_for('singleplayer_move') }}" method="post">
+                    <input type="hidden" name="player" value="X">
+                    <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
+                    <button type="submit">Move</button>
+                </form>
+            {% endif %}
+        </div>
+        <div class="exit-form">
+            <form action="{{ url_for('home') }}" method="post">
+                <button type="submit">Exit</button>
             </form>
-        {% endif %}
-    </div>
-    <div style='text-align:center; margin-top:20px;'>
-        <form action="{{url_for('home')}}" method="post">
-            <button type="submit">Exit</button>
-        </form>
-    </div>
-    <div style="text-align: center; color: red;">
-        {{ message }}
+        </div>
+        <div class="message">
+            {{ message }}
+        </div>
     </div>
 </body>
 </html>

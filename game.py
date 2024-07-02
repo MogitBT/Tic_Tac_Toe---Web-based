@@ -101,7 +101,7 @@ class Game:
         position = str(position + 1)
         message = Game.update(position, 'O')
 
-        return message
+        return int(position) - 1, message  # Return the position and the message
 
     def tutorial_logic():
         if Game.tutorial_step < len(Game.combination):
@@ -145,3 +145,5 @@ class Game:
                 return "Tutorial complete! You've learned all the steps."
         else:
             return "Invalid input. Please enter a number between 1 and 9."
+        
+       

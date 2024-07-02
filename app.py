@@ -15,9 +15,9 @@ class UserInput(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player = db.Column(db.String(10), nullable=False)
     position = db.Column(db.Integer, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
     game_mode = db.Column(db.String(20), nullable=False)
-    player_name = db.Column(db.String(50), nullable=False)  # New field
+    player_name = db.Column(db.String(50), nullable=False)
 
 @app.before_request
 def create_tables():
@@ -62,7 +62,7 @@ def double_player():
     player1 = session.get('player1')
     player2 = session.get('player2')
 
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2)
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2,message = error_message)
 
 @app.route('/single_player')
 def single_player():

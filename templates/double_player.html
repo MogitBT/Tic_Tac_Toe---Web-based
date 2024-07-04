@@ -56,6 +56,13 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 18px;
+            width: 150px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
         button {
             padding: 10px 20px;
             font-size: 18px;
@@ -106,6 +113,13 @@
             border-radius: 5px;
         }
     </style>
+    <script>
+        function confirmAction(event, message){
+            if(!confirm(message)){
+                event.preventDefault();
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -126,7 +140,7 @@
                         <form action="{{ url_for('doubleplayer_move') }}" method="post">
                             <input type="hidden" name="player" value="X">
                             <div class="form-group">
-                                <input type="text" name="position" placeholder="{{ player1 }}'s move (1-9)" autofocus>
+                                <input type="number" name="position" placeholder="{{ player1 }}'s move (1-9)" autofocus min="1" max="9">
                                 <button type="submit">Move</button>
                             </div>
                         </form>
@@ -134,7 +148,7 @@
                         <form action="{{ url_for('doubleplayer_move') }}" method="post">
                             <input type="hidden" name="player" value="O">
                             <div class="form-group">
-                                <input type="text" name="position" placeholder="{{ player2 }}'s move (1-9)" autofocus>
+                                <input type="number" name="position" placeholder="{{ player2 }}'s move (1-9)" autofocus min="1" max="9">
                                 <button type="submit">Move</button>
                             </div>
                         </form>
@@ -144,12 +158,12 @@
                         <form action="{{ url_for('doubleplayer_move') }}" method="post">
                             <input type="hidden" name="player" value="X">
                             <div class="form-group">
-                                <input type="text" name="position" placeholder="{{ player1 }}'s move (1-9)" autofocus>
+                                <input type="number" name="position" placeholder="{{ player1 }}'s move (1-9)" autofocus min="1" max="9">
                                 <button type="submit">Move</button>
                             </div>
                         </form>
                         <div>
-                            <form action="{{ url_for('refresh') }}" method="post" style="margin-top: 20px;">
+                            <form action="{{ url_for('refresh') }}" method="post" style="margin-top: 20px;" onsubmit="confirmAction(event, 'Are you sure you want to refresh?')">
                                 <input type="hidden" name="source" value="double_player">
                                 <button type="submit">Refresh</button>
                             </form>
@@ -158,10 +172,16 @@
                         <form action="{{ url_for('doubleplayer_move') }}" method="post">
                             <input type="hidden" name="player" value="O">
                             <div class="form-group">
-                                <input type="text" name="position" placeholder="{{ player2 }}'s move (1-9)" autofocus>
+                                <input type="number" name="position" placeholder="{{ player2 }}'s move (1-9)" autofocus min="1" max="9">
                                 <button type="submit">Move</button>
                             </div>
                         </form>
+                        <div>
+                            <form action="{{ url_for('refresh') }}" method="post" style="margin-top: 20px;" onsubmit="confirmAction(event, 'Are you sure you want to refresh?')">
+                                <input type="hidden" name="source" value="double_player">
+                                <button type="submit">Refresh</button>
+                            </form>
+                        </div>
                     {% endif %}
                 {% endif %}
             </div>
@@ -190,7 +210,7 @@
             <div class="message">{{ message }}</div>
         {% endif %}
         <div class="exit-form">
-            <form action="{{ url_for('home') }}" method="post">
+            <form action="{{ url_for('home') }}" method="post" onsubmit="confirmAction(event,'Are you sure you want to exit ?')">
                 <input type="hidden" name="source" value="double_player">
                 <button type="submit">Exit</button>
             </form>

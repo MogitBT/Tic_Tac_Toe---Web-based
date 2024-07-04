@@ -4,6 +4,24 @@
     <meta charset="UTF-8">
     <title>Tutorial</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
         table {
             margin: 20px auto;
             border-collapse: collapse;
@@ -16,52 +34,94 @@
             font-size: 28px;
         }
         form {
-            display: inline;
+            display: inline-block;
             text-align: center;
+            padding: 10px;
+            margin: 10px;
+            font-size: 20px;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 18px;
+            width: 150px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .message {
+            text-align: center;
+            color: red;
+        }
+        .exit-form {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Tic Tac Toe Tutorial</h1>
-    <table>
-        {% for row in game %}
-            <tr>
-                {% for cell in row %}
-                    <td>{{ cell }}</td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    </table>
-    {% if first_move_made %}
-        <div style="text-align: center;">
-            <form action="{{ url_for('tutorial_move') }}" method="post">
-                <input type="hidden" name="player" value="X">
-                <input type="text" name="position" placeholder="Enter position (1-9)" autofocus>
-                <button type="submit">Move</button>
+    <div class="container">
+        <h1>Tic Tac Toe Tutorial</h1>
+        <table>
+            {% for row in game %}
+                <tr>
+                    {% for cell in row %}
+                        <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        {% if first_move_made %}
+            <div>
+                <form action="{{ url_for('tutorial_move') }}" method="post">
+                    <input type="hidden" name="player" value="X">
+                    <div class="form-group">
+                        <input type="text" name="position" placeholder="Enter position (1-9)" autofocus>
+                        <button type="submit">Move</button>
+                    </div>
+                </form>
+            </div>
+            <div class="exit-form">
+                <form action="{{ url_for('refresh') }}" method="post">
+                    <input type="hidden" name="source" value="tutorial">
+                    <button type="submit">Refresh</button>
+                </form>
+            </div>
+        {% else %}
+            <div>
+                <form action="{{ url_for('tutorial_move') }}" method="post">
+                    <input type="hidden" name="player" value="X">
+                    <div class="form-group">
+                        <input type="text" name="position" placeholder="Enter position (1-9)" autofocus>
+                        <button type="submit">Move</button>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+        <div class="exit-form">
+            <form action="{{ url_for('home') }}" method="post">
+                <button type="submit">Exit</button>
             </form>
         </div>
-        <div style="text-align: center; margin-top: 20px;">
-            <form action="{{ url_for('refresh') }}" method="post">
-                <input type="hidden" name="source" value="tutorial">
-                <button type="submit">Refresh</button>
-            </form>
+        <div class="message">
+            {{ message }}
         </div>
-    {% else %}
-        <div style="text-align: center; margin-top: 20px;">
-            <form action="{{ url_for('tutorial_move') }}" method="post">
-                <input type="hidden" name="player" value="X">
-                <input type="text" name="position" placeholder="Enter position (1-9)" autofocus>
-                <button type="submit">Move</button>
-            </form>
-        </div>
-    {% endif %}
-    <div style='text-align:center; margin-top:20px;'>
-        <form action="{{url_for('home')}}" method="post">
-            <button type="submit">Exit</button>
-        </form>
-    </div>
-    <div style="text-align: center; color: red;">
-        {{ message }}
     </div>
 </body>
 </html>

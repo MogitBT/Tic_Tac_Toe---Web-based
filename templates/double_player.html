@@ -22,6 +22,7 @@
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
+            text-align: center;
         }
         table {
             margin: 20px auto;
@@ -75,6 +76,34 @@
         .exit-form {
             text-align: center;
             margin-top: 20px;
+        }
+        .log-section {
+            width: 200px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+        .log-section h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .log-section ul {
+            list-style: none;
+            padding: 0;
+            font-size: 14px;
+        }
+        .log-section li {
+            background-color: #f9f9f9;
+            margin-bottom: 5px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -133,35 +162,38 @@
                                 <button type="submit">Move</button>
                             </div>
                         </form>
-                        <div>
-                            <form action="{{ url_for('refresh') }}" method="post" style="margin-top: 20px;">
-                                <input type="hidden" name="source" value="double_player">
-                                <button type="submit">Refresh</button>
-                            </form>
-                        </div>
                     {% endif %}
                 {% endif %}
             </div>
-        {% else %}
-            <div style="text-align: center;">
-                <form method="post" action="{{ url_for('double_player') }}">
-                    <div class="form-group">
-                        <input type="text" name="player1" placeholder="Enter Player 1 Name" autofocus required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" name="player2" placeholder="Enter Player 2 Name" required>
-                    </div>
-                    <button type="submit">Start Game</button>
-                </form>
+            <div class="log-section">
+                <h2>Move Log</h2>
+                <ul>
+                    {% for move in move_log %}
+                        <li>{{ move.player_name }} ({{ move.player }}) moved to position {{ move.position + 1 }}
+                            {% if move.win_status %}
+                                - {{ move.win_status }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
+        {% else %}
+            <form action="{{ url_for('double_player') }}" method="post">
+                <div class="form-group">
+                    <input type="text" name="player1" placeholder="Player 1 Name" required autofocus>
+                    <input type="text" name="player2" placeholder="Player 2 Name" required autofocus>
+                </div>
+                <button type="submit">Start Game</button>
+            </form>
+        {% endif %}
+        {% if message %}
+            <div class="message">{{ message }}</div>
         {% endif %}
         <div class="exit-form">
             <form action="{{ url_for('home') }}" method="post">
+                <input type="hidden" name="source" value="double_player">
                 <button type="submit">Exit</button>
             </form>
-        </div>
-        <div class="message">
-            {{ message }}
         </div>
     </div>
 </body>

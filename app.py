@@ -17,9 +17,10 @@ class UserInput(db.Model):
     game_id = db.Column(db.String(36), nullable=False)
     player = db.Column(db.String(10), nullable=False)
     position = db.Column(db.Integer, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
     game_mode = db.Column(db.String(20), nullable=False)
     player_name = db.Column(db.String(50), nullable=False)
+    win_status = db.Column(db.String(50), nullable=True)
 
 @app.before_request
 def create_tables():
@@ -31,7 +32,7 @@ def create_tables():
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if 'game_id' not in session:
-        session['game_id'] = str(uuid.uuid4())  # Generate a new game ID if not already set
+        session['game_id'] = str(uuid.uuid4().hex[4])
 
     Game.structure = ["_" for _ in range(9)]
     return render_template('home.html', game=Game.layout())
@@ -57,29 +58,37 @@ def double_player():
         
         if not player1 or not player2 or player1 == player2:
             error_message = "Invalid input: Please enter distinct names for both players."
-            return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, error_message=error_message)
+            game_id = session.get('game_id')
+            move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Double Player').all()
+            return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, error_message=error_message, move_log=move_log)
         
         session['player1'] = player1
         session['player2'] = player2
         session['first_move_made'] = False
+        session['game_id'] = str(uuid.uuid4())  # Generate a unique game ID
 
     first_move_made = session.get('first_move_made', False)
     player1 = session.get('player1')
     player2 = session.get('player2')
+    game_id = session.get('game_id')
+    move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Double Player').all()
 
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2)
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2, move_log=move_log)
 
 @app.route('/single_player')
 def single_player():
     if 'game_id' not in session:
-        session['game_id'] = str(uuid.uuid4())  # Generate a new game ID if not already set
+        session['game_id'] = str(uuid.uuid4()) 
 
-    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player)
+    game_id = session['game_id']
+    move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Single Player').all()
+
+    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, move_log=move_log)
 
 @app.route('/tutorial')
 def tutorial():
     if 'game_id' not in session:
-        session['game_id'] = str(uuid.uuid4())  # Generate a new game ID if not already set
+        session['game_id'] = str(uuid.uuid4()) 
 
     Game.refresh()
     Game.tutorial_logic()
@@ -88,66 +97,95 @@ def tutorial():
 @app.route('/doubleplayer_move', methods=['POST'])
 def doubleplayer_move():
     player = request.form['player']
+    player1 = session.get('player1', 'Player 1')
+    player2 = session.get('player2', 'Player 2')
     position = request.form['position']
     game_id = session['game_id']
 
-    if not position.isdigit() or int(position) not in range(9) or Game.structure[int(position) - 1] != "_":
+    if not position.isdigit() or int(position) not in range(1, 10) or Game.structure[int(position) - 1] != "_":
         error_message = "Invalid move: Please select a valid position."
         player1 = session.get('player1', 'Player 1')
         player2 = session.get('player2', 'Player 2')
-        return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), error_message=error_message, player1=player1, player2=player2)
+        move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Double Player').all()
+        return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), message=error_message, player1=player1, player2=player2, move_log=move_log)
 
     message = Game.update(position, player)
-    
+    win_status = None
+
+    if "Player X won" in message:
+        win_status = f'{player1} Won'
+    elif "Player O won" in message:
+        win_status = f'{player2} Won'
+    elif "Match Draw!" in message:
+        win_status = "Draw"
+
     if not session.get('first_move_made', False):
         session['first_move_made'] = True
-        
+
     # Track user input
     player_name = session.get('player1') if player == 'X' else session.get('player2')
-    user_input = UserInput(game_id=game_id, player=player, position=int(position), game_mode='Double Player', player_name=player_name)
+    user_input = UserInput(game_id=game_id, player=player, position=int(position) - 1, game_mode='Double Player', player_name=player_name, win_status=win_status)
     db.session.add(user_input)
     db.session.commit()
-    
-    if not session.get('first_move_made', False):
-        session['first_move_made'] = True
 
-    player1 = session.get('player1', 'Player 1')
-    player2 = session.get('player2', 'Player 2')
+    move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Double Player').all()
 
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=message)
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=message, move_log=move_log)
+
 
 @app.route('/singleplayer_move', methods=['POST'])
 def singleplayer_move():
     player = request.form['player']
     position = request.form['position']
     game_id = session['game_id']
-    player_name = "Player X" if player == 'X' else "Bot"
+    player_name = "Player" if player == 'X' else "Bot"
 
-    if not position.isdigit() or int(position) not in range(10) or Game.structure[int(position) - 1] != "_":
+    if not position.isdigit() or int(position) not in range(1, 10) or Game.structure[int(position) - 1] != "_":
         error_message = "Invalid move: Please select a valid position."
-        return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), error_message=error_message)
+        move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Single Player').all()
+        return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), message=error_message, move_log=move_log)
 
     message = Game.update(position, player)
 
+    win_status = None
+    if "Player X won" in message:
+        win_status = "Player Won"
+    elif "Player O won" in message:
+        win_status = "Bot Won"
+    elif "Match Draw!" in message:
+        win_status = "Draw"
+
     # Track user input for player
-    user_input = UserInput(game_id=game_id, player=player, position=int(position) - 1, game_mode='Single Player', player_name=player_name)
+    user_input = UserInput(game_id=game_id, player=player, position=int(position) - 1, game_mode='Single Player', player_name=player_name, win_status=win_status)
     db.session.add(user_input)
     db.session.commit()
 
     if not session.get('first_move_made', False):
         session['first_move_made'] = True
 
-    if Game.current_player == 'O' and not message:
+    if Game.current_player == 'O' and "won" not in message and "Draw" not in message:
         bot_position, bot_message = Game.bot_move_logic()
 
+        # Determine win status from bot move
+        if "Player won" in bot_message:
+            win_status = "Player X Won"
+        elif "Player O won" in bot_message:
+            win_status = "Bot Won"
+        elif "Match Draw!" in bot_message:
+            win_status = "Draw"
+
         # Track user input for bot
-        bot_input = UserInput(game_id=game_id, player='O', position=bot_position, game_mode='Single Player', player_name="Bot")
+        bot_input = UserInput(game_id=game_id, player='O', position=bot_position, game_mode='Single Player', player_name="Bot", win_status=win_status)
         db.session.add(bot_input)
         db.session.commit()
 
-        message = bot_message if bot_message else message
+        message = bot_message
 
-    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], message=message)
+    move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Single Player').all()
+
+    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), message=message, move_log=move_log)
+
+
 
 @app.route('/tutorial_move', methods=['POST'])
 def tutorial_move():

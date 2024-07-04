@@ -36,7 +36,24 @@
         }
         form {
             display: inline-block;
-            margin: 10px 0;
+            text-align: center;
+            padding: 10px;
+            margin: 10px;
+            font-size: 20px;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 18px;
+            width: 150px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         button {
             padding: 10px 20px;
@@ -57,6 +74,34 @@
         .exit-form {
             margin-top: 20px;
         }
+        .log-section {
+            width: 200px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            position: fixed; 
+            right: 20px;
+            top: 20px;
+            max-height: calc(100vh - 40px); 
+            overflow-y: auto; 
+        }
+        .log-section h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .log-section ul {
+            list-style: none;
+            padding: 0;
+            font-size: 14px;
+        }
+        .log-section li {
+            background-color: #f9f9f9;
+            margin-bottom: 5px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -75,8 +120,10 @@
             {% if first_move_made %}
                 <form action="{{ url_for('singleplayer_move') }}" method="post">
                     <input type="hidden" name="player" value="X">
-                    <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
-                    <button type="submit">Move</button>
+                    <div class="form-group">
+                        <input type="text" name="position" placeholder="Player move (1-9)" autofocus>
+                        <button type="submit">Move</button>
+                    </div>
                 </form>
                 <div style="margin-top: 20px;">
                     <form action="{{ url_for('refresh') }}" method="post">
@@ -87,8 +134,10 @@
             {% else %}
                 <form action="{{ url_for('singleplayer_move') }}" method="post">
                     <input type="hidden" name="player" value="X">
-                    <input type="text" name="position" placeholder="Player X move (1-9)" autofocus>
-                    <button type="submit">Move</button>
+                    <div class="form-group">
+                        <input type="text" name="position" placeholder="Player move (1-9)" autofocus>
+                        <button type="submit">Move</button>
+                    </div>
                 </form>
             {% endif %}
         </div>
@@ -100,6 +149,18 @@
         <div class="message">
             {{ message }}
         </div>
+    </div>
+    <div class="log-section">
+        <h2>Move Log</h2>
+        <ul>
+            {% for move in move_log %}
+                <li>{{ move.player_name }} ({{ move.player }}) moved to position {{ move.position + 1 }}
+                    {% if move.win_status %}
+                        - {{ move.win_status }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 </body>
 </html>

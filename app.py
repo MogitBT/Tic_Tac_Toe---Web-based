@@ -122,8 +122,11 @@ def doubleplayer_move():
 
     move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Double Player').all()
 
+    if win_status:
+        return render_template('doubleplayer_end.html', game=Game.layout(), current_player=Game.current_player,message=message, move_log=move_log)
 
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=message, move_log=move_log, game_end=game_end)
+
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=message, move_log=move_log)
 
 @app.route('/single_player')
 def single_player():
@@ -193,7 +196,7 @@ def singleplayer_move():
     move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Single Player').all()
 
     if win_status:
-        return render_template('singleplayer_end.html', game=Game.layout(), current_player=Game.current_player,message=message)
+        return render_template('singleplayer_end.html', game=Game.layout(), current_player=Game.current_player,message=message, move_log=move_log)
 
     return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), message=message, move_log=move_log)
 

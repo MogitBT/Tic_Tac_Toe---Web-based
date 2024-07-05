@@ -116,6 +116,18 @@
                 <button type="submit">Restart Game</button>
             </form>
         </div>
+        <div class="log-section">
+            <h2>Move Log</h2>
+            <ul>
+                {% for move in move_log %}
+                    <li>{{ move.player_name }} ({{ move.player }}) moved to position {{ move.position + 1 }}
+                        {% if move.win_status %}
+                            - {{ move.win_status }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
         <div class="exit-form">
             <form action="{{ url_for('home') }}" method="post" onsubmit="confirmAction(event, 'Are you sure you want to exit?')">
                 <button type="submit">Exit</button>

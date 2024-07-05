@@ -50,10 +50,8 @@ class Game:
     def update(position, player):
         if Game.user_input(position, player):
             if Game.check(player):
-                Game.refresh()
                 return f'Player {player} won!'
             elif Game.draw():
-                Game.refresh()
                 return 'Match Draw!'
             else:
                 Game.current_player = 'O' if player == 'X' else 'X'

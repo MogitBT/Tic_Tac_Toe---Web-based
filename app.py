@@ -75,22 +75,6 @@ def double_player():
 
     return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, player1=player1, player2=player2, move_log=move_log)
 
-@app.route('/single_player')
-def single_player():
-    if 'game_id' not in session:
-        session['game_id'] = str(uuid.uuid4()) 
-
-    game_id = session['game_id']
-    move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Single Player').all()
-
-    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, move_log=move_log)
-
-@app.route('/tutorial')
-def tutorial():
-    Game.refresh()
-    Game.tutorial_logic()
-    return render_template('tutorial.html', game=Game.layout(), current_player=Game.current_player)
-
 @app.route('/doubleplayer_move', methods=['POST'])
 def doubleplayer_move():
     player = request.form['player']
@@ -111,16 +95,22 @@ def doubleplayer_move():
 
     message = Game.update(position, player)
     win_status = None
+    game_end = 0
 
     if "Player X won" in message:
         win_status = f'{player1} Won'
         session['game_id'] = str(uuid.uuid4())
+        game_end =1
     elif "Player O won" in message:
         win_status = f'{player2} Won'
         session['game_id'] = str(uuid.uuid4())
+        game_end = 1
     elif "Match Draw!" in message:
         win_status = "Draw"
         session['game_id'] = str(uuid.uuid4())
+        game_end = 1
+    else:
+        game_end = 0
 
     if not session.get('first_move_made', False):
         session['first_move_made'] = True
@@ -132,13 +122,27 @@ def doubleplayer_move():
 
     move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Double Player').all()
 
-    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=message, move_log=move_log)
+
+    return render_template('double_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session['first_move_made'], player1=player1, player2=player2, message=message, move_log=move_log, game_end=game_end)
+
+@app.route('/single_player')
+def single_player():
+    if 'game_id' not in session:
+        session['game_id'] = str(uuid.uuid4()) 
+
+    first_move_made = session.get('first_move_made', False)
+    game_id = session['game_id']
+    move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Single Player').all()
+
+    return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=first_move_made, move_log=move_log)
 
 
 @app.route('/singleplayer_move', methods=['POST'])
 def singleplayer_move():
     player = request.form['player']
     position = request.form['position']
+    if 'game_id' not in session:
+        session['game_id'] = str(uuid.uuid4())
     game_id = session['game_id']
     player_name = "Player" if player == 'X' else "Bot"
 
@@ -188,8 +192,17 @@ def singleplayer_move():
 
     move_log = UserInput.query.filter_by(game_id=game_id, game_mode='Single Player').all()
 
+    if win_status:
+        return render_template('singleplayer_end.html', game=Game.layout(), current_player=Game.current_player,message=message)
+
     return render_template('single_player.html', game=Game.layout(), current_player=Game.current_player, first_move_made=session.get('first_move_made', False), message=message, move_log=move_log)
 
+
+@app.route('/tutorial')
+def tutorial():
+    Game.refresh()
+    Game.tutorial_logic()
+    return render_template('tutorial.html', game=Game.layout(), current_player=Game.current_player)
 
 
 @app.route('/tutorial_move', methods=['POST'])
